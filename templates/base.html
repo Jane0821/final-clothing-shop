@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服飾即時篩選與品牌爬蟲系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vi;
+        }
+        main {
+            flex: 1;
+        }
+        footer {
+            background-color: #212529;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fa-solid fa-spider me-2 text-info"></i>服飾即時篩選與爬蟲系統
+            </a>
+        </div>
+    </nav>
+
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="py-3 text-center text-muted text-sm mt-auto">
+        <div class="container">
+            <small>&copy; 2026 服飾即時篩選系統原型專案. All Rights Reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   
+</body>
+</html>

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="card shadow-sm border-0 mb-4 animate__animated animate__fadeIn">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="card-title fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-sliders text-primary me-2"></i>智能篩選與分析面板
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-secondary">性別</label>
+                                <select class="form-select border-2" name="gender" required>
+                                    <option value="男裝">男裝 (Menswear)</option>
+                                    <option value="女裝">女裝 (Womenswear)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-secondary">品牌</label>
+                                <select class="form-select border-2" name="brand" required>
+                                    <option value="UNIQLO">UNIQLO</option>
+                                    <option value="GU">GU</option>
+                                    <option value="ZARA">ZARA</option>
+                                    <option value="H&M">H&M</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-secondary">服飾類型</label>
+                                <select class="form-select border-2" name="type" required>
+                                    <option value="T-shirt">T-shirt (短袖/上衣)</option>
+                                    <option value="Jacket">Jacket (外套/大衣)</option>
+                                    <option value="Dress">Dress (連身裙/洋裝)</option>
+                                    <option value="Jeans">Jeans (牛仔褲系列)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-secondary">預算區間 (NT$)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control border-2" name="min_price" placeholder="最低" min="0">
+                                    <span class="input-group-text bg-light">~</span>
+                                    <input type="number" class="form-control border-2" name="max_price" placeholder="最高" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm fw-bold" id="btnSubmit">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>立即篩選商品
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="loadingStatus" class="text-center my-5 d-none">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted fw-semibold">正在分析品牌網頁資料，請稍候...</p>
+            </div>
+
+            <div id="resultContainer">
+                <div class="alert alert-light text-center border-2 py-4 shadow-sm text-secondary" id="emptyMessage">
+                    <i class="fa-solid fa-shirt fa-2x mb-2 text-muted"></i>
+                    <p class="mb-0">請選擇上方篩選條件並點選按鈕，系統將即時產生資料。</p>
+                </div>
+                
+                <div class="row row-cols-1 row-cols-md-3 g-4" id="resultGrid"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+
+{% endblock %}
