@@ -14,32 +14,36 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
     # 模擬真實爬蟲在網路世界等待回應的傳輸延遲（讓前端的轉圈圈動畫更逼真！）
     time.sleep(1.5) 
     
-    # 【已過濾人像】全新純商品平拍、掛拍高品質圖片池
+    # 【已過濾人像】全新純商品平拍、掛拍高品質圖片池 - 新增 type 標籤
     mock_pool = [
         # T-shirt 系列
-        {"title": "高質感重磅純棉微廓形上衣", "price_base": 590, "rating": 4.5, "img": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500"},
-        {"title": "美式復古學院風印花短袖", "price_base": 490, "rating": 4.3, "img": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500"},
-        {"title": "極簡生活系列 基礎百搭素T", "price_base": 390, "rating": 4.2, "img": "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500"},
+        {"type": "T-shirt", "title": "高質感重磅純棉微廓形上衣", "price_base": 590, "rating": 4.5, "img": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500"},
+        {"type": "T-shirt", "title": "美式復古學院風印花短袖", "price_base": 490, "rating": 4.3, "img": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500"},
+        {"type": "T-shirt", "title": "極簡生活系列 基礎百搭素T", "price_base": 390, "rating": 4.2, "img": "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500"},
         
         # Jacket 外套系列
-        {"title": "城市極簡機能防風連帽外套", "price_base": 1990, "rating": 4.8, "img": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500"},
-        {"title": "經典街頭率性丹寧牛仔外套", "price_base": 1490, "rating": 4.6, "img": "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=500"},
-        {"title": "英倫風時尚雙排扣翻領大衣", "price_base": 2490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=500"},
+        {"type": "Jacket", "title": "城市極簡機能防風連帽外套", "price_base": 1990, "rating": 4.8, "img": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500"},
+        {"type": "Jacket", "title": "經典街頭率性丹寧牛仔外套", "price_base": 1490, "rating": 4.6, "img": "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=500"},
+        {"type": "Jacket", "title": "英倫風時尚雙排扣翻領大衣", "price_base": 2490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=500"},
         
         # Jeans 褲裝系列
-        {"title": "工裝風多口袋休閒寬褲", "price_base": 990, "rating": 4.6, "img": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500"},
-        {"title": "日系純色百搭舒適修身直筒褲", "price_base": 790, "rating": 4.2, "img": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500"},
-        {"title": "高腰修身顯瘦復古水洗牛仔褲", "price_base": 1290, "rating": 4.5, "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500"},
+        {"type": "Jeans", "title": "工裝風多口袋休閒寬褲", "price_base": 990, "rating": 4.6, "img": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500"},
+        {"type": "Jeans", "title": "日系純色百搭舒適修身直筒褲", "price_base": 790, "rating": 4.2, "img": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500"},
+        {"type": "Jeans", "title": "高腰修身顯瘦復古水洗牛仔褲", "price_base": 1290, "rating": 4.5, "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500"},
         
         # Dress 連身裙系列
-        {"title": "法式優雅浪漫碎花連身裙", "price_base": 1490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500"},
-        {"title": "赫本風極簡純色高腰洋裝", "price_base": 1680, "rating": 4.6, "img": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500"}
+        {"type": "Dress", "title": "法式優雅浪漫碎花連身裙", "price_base": 1490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500"},
+        {"type": "Dress", "title": "赫本風極簡純色高腰洋裝", "price_base": 1680, "rating": 4.6, "img": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500"}
     ]
     
     realtime_results = []
     
-    # 網路爬蟲數據過濾與格式標準化清洗
+    # 網路爬蟲數據過濾與格式標準化清洗 - 新增類型篩選
     for item in mock_pool:
+        # 【新增】檢查服飾類型是否匹配
+        if item["type"] != clothing_type:
+            continue
+            
         brand_multiplier = {"UNIQLO": 1.0, "GU": 0.8, "ZARA": 1.4, "H&M": 0.9}
         multiplier = brand_multiplier.get(brand, 1.0)
         final_price = int(item["price_base"] * multiplier)
