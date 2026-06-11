@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import random
 import time  # 引入時間模組，用來模擬網路爬蟲的傳輸延遲
+import hashlib
 
 main_bp = Blueprint('main', __name__)
 
@@ -90,7 +91,12 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
             serial_num = random.randint(100, 999)
             item_code = f"CRAWL-{brand_code}-{final_price}-{serial_num}"
             type_images = stable_image_pool.get(item['type'], [])
-            image_url = random.choice(type_images) if type_images else "https://via.placeholder.com/500x500.png?text=Clothing"
+            if type_images:
+                title_hash = hashlib.md5(item['title'].encode('utf-8')).hexdigest()
+                image_index = int(title_hash, 16) % len(type_images)
+                image_url = type_images[image_index]
+            else:
+                image_url = "https://via.placeholder.com/500x500.png?text=Clothing"
             
             realtime_results.append({
                 'item_code': item_code,
@@ -127,13 +133,19 @@ def load_local_clothing_data(target_brand, target_gender, target_type, min_price
         serial_num = random.randint(100, 999)
         item_code = f"LOCAL-{brand_code}-{int(row['price'])}-{serial_num}"
 
+        official_url = None
+        if 'official_image_url' in df.columns:
+            official_url = row.get('official_image_url')
+            if pd.isna(official_url):
+                official_url = None
+
         results.append({
             'item_code': item_code,
             'title': row['title'],
             'price': int(row['price']),
             'rating': float(row['rating']),
             'brand': row['brand'],
-            'image_url': row['image_url'],
+            'image_url': official_url or row['image_url'],
             'is_fallback': False
         })
 
@@ -218,13 +230,19 @@ def search():
             serial_num = random.randint(100, 999)
             item_code = f"LOCAL-{brand_code}-{int(row['price'])}-{serial_num}"
             
+            official_url = None
+            if 'official_image_url' in df.columns:
+                official_url = row.get('official_image_url')
+                if pd.isna(official_url):
+                    official_url = None
+
             results.append({
                 'item_code': item_code,
                 'title': row['title'],
                 'price': int(row['price']),
                 'rating': float(row['rating']),
                 'brand': row['brand'],
-                'image_url': row['image_url'],
+                'image_url': official_url or row['image_url'],
                 'is_fallback': False
             })
             
@@ -240,13 +258,19 @@ def search():
                     serial_num = random.randint(100, 999)
                     item_code = f"RECOMMEND-{brand_code}-{int(row['price'])}-{serial_num}"
                     
+                    official_url = None
+                    if 'official_image_url' in df.columns:
+                        official_url = row.get('official_image_url')
+                        if pd.isna(official_url):
+                            official_url = None
+
                     results.append({
                         'item_code': item_code,
                         'title': f"【店長推薦】{row['title']}",
                         'price': int(row['price']),
                         'rating': float(row['rating']),
                         'brand': row['brand'],
-                        'image_url': row['image_url'],
+                        'image_url': official_url or row['image_url'],
                         'is_fallback': True
                     })
 
