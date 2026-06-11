@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import random
 import time  # 引入時間模組，用來模擬網路爬蟲的傳輸延遲
-import urllib.parse
 
 main_bp = Blueprint('main', __name__)
 
@@ -49,13 +48,34 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
         {"type": "Dress", "title": "波西米亞長袖洋裝", "price_base": 1890, "rating": 4.7},
         {"type": "Dress", "title": "經典襯衫連身洋裝", "price_base": 1390, "rating": 4.4}
     ]
+
+    stable_image_pool = {
+        "T-shirt": [
+            "https://images.unsplash.com/photo-1495121605193-b116b5b9c5c5?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=500&q=80"
+        ],
+        "Jacket": [
+            "https://images.unsplash.com/photo-1520975912867-6f34f58b6cec?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1544923246-77307dd654cb?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1524506543702-4a24abac0bea?auto=format&fit=crop&w=500&q=80"
+        ],
+        "Jeans": [
+            "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=500&q=80"
+        ],
+        "Dress": [
+            "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=500&q=80"
+        ]
+    }
     
     realtime_results = []
     
     # 網路爬蟲數據過濾與格式標準化清洗 - 新增類型篩選
-    gender_lookup = {'男裝': 'men', '女裝': 'women'}
-    gender_query = gender_lookup.get(gender, gender)
-
     for item in mock_pool:
         # 【新增】檢查服飾類型是否匹配
         if item["type"] != clothing_type:
@@ -69,7 +89,8 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
             brand_code = str(brand)[:2].upper()
             serial_num = random.randint(100, 999)
             item_code = f"CRAWL-{brand_code}-{final_price}-{serial_num}"
-            image_url = "https://source.unsplash.com/featured/500x500/?" + urllib.parse.quote_plus(f"{brand} {item['type']} {gender_query} clothing")
+            type_images = stable_image_pool.get(item['type'], [])
+            image_url = random.choice(type_images) if type_images else "https://via.placeholder.com/500x500.png?text=Clothing"
             
             realtime_results.append({
                 'item_code': item_code,
