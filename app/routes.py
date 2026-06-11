@@ -141,16 +141,17 @@ def search():
     # 1. 優先啟動即時網路爬蟲
     try:
         crawler_data = fetch_realtime_clothing_data(target_brand, frontend_gender, target_type, min_price, max_price)
+
         if crawler_data:
-            if len(crawler_data) < 6:
-                try:
-                    csv_results = load_local_clothing_data(target_brand, target_gender, target_type, min_price, max_price)
+            try:
+                csv_results = load_local_clothing_data(target_brand, target_gender, target_type, min_price, max_price)
+                if csv_results:
                     existing_titles = {item['title'] for item in crawler_data}
                     for item in csv_results:
                         if item['title'] not in existing_titles:
                             crawler_data.append(item)
-                except Exception as csv_merge_err:
-                    print(f"本機 CSV 補充失敗: {csv_merge_err}")
+            except Exception as csv_merge_err:
+                print(f"本機 CSV 補充失敗: {csv_merge_err}")
 
             return jsonify({
                 'success': True,
