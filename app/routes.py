@@ -117,7 +117,7 @@ def load_local_clothing_data(target_brand, target_gender, target_type, min_price
             if pd.isna(official_url):
                 official_url = None
 
-        image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], official_url or row['image_url'] or PLACEHOLDER_IMAGE)
+        image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
 
         results.append({
             'item_code': item_code,
@@ -216,7 +216,7 @@ def search():
                 if pd.isna(official_url):
                     official_url = None
 
-            image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], official_url or row['image_url'] or PLACEHOLDER_IMAGE)
+            image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
 
             results.append({
                 'item_code': item_code,
@@ -246,13 +246,14 @@ def search():
                         if pd.isna(official_url):
                             official_url = None
 
-                    results.append({
+                    image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
+            results.append({
                         'item_code': item_code,
                         'title': f"【店長推薦】{row['title']}",
                         'price': int(row['price']),
                         'rating': float(row['rating']),
                         'brand': row['brand'],
-                        'image_url': official_url or row['image_url'],
+                        'image_url': image_url,
                         'is_fallback': True
                     })
 
