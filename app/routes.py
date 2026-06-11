@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import random
 import time  # 引入時間模組，用來模擬網路爬蟲的傳輸延遲
+import urllib.parse
 
 main_bp = Blueprint('main', __name__)
 
@@ -17,41 +18,44 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
     # 【已過濾人像】全新純商品平拍、掛拍高品質圖片池 - 新增 type 標籤
     mock_pool = [
         # T-shirt 系列
-        {"type": "T-shirt", "title": "高質感重磅純棉微廓形上衣", "price_base": 590, "rating": 4.5, "img": "https://images.unsplash.com/photo-1495121605193-b116b5b9c5c5?w=500"},
-        {"type": "T-shirt", "title": "美式復古學院風印花短袖", "price_base": 490, "rating": 4.3, "img": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=500"},
-        {"type": "T-shirt", "title": "極簡生活系列 基礎百搭素T", "price_base": 390, "rating": 4.2, "img": "https://images.unsplash.com/photo-1520975912867-6f34f58b6cec?w=500"},
-        {"type": "T-shirt", "title": "荷葉邊可愛短袖上衣", "price_base": 620, "rating": 4.4, "img": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500"},
-        {"type": "T-shirt", "title": "蕾絲拼接舒適短袖", "price_base": 680, "rating": 4.5, "img": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500"},
-        {"type": "T-shirt", "title": "清新條紋落肩上衣", "price_base": 540, "rating": 4.3, "img": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=500"},
+        {"type": "T-shirt", "title": "高質感重磅純棉微廓形上衣", "price_base": 590, "rating": 4.5},
+        {"type": "T-shirt", "title": "美式復古學院風印花短袖", "price_base": 490, "rating": 4.3},
+        {"type": "T-shirt", "title": "極簡生活系列 基礎百搭素T", "price_base": 390, "rating": 4.2},
+        {"type": "T-shirt", "title": "荷葉邊可愛短袖上衣", "price_base": 620, "rating": 4.4},
+        {"type": "T-shirt", "title": "蕾絲拼接舒適短袖", "price_base": 680, "rating": 4.5},
+        {"type": "T-shirt", "title": "清新條紋落肩上衣", "price_base": 540, "rating": 4.3},
         
         # Jacket 外套系列
-        {"type": "Jacket", "title": "城市極簡機能防風連帽外套", "price_base": 1990, "rating": 4.8, "img": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500"},
-        {"type": "Jacket", "title": "經典街頭率性丹寧牛仔外套", "price_base": 1490, "rating": 4.6, "img": "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=500"},
-        {"type": "Jacket", "title": "英倫風時尚雙排扣翻領大衣", "price_base": 2490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=500"},
-        {"type": "Jacket", "title": "小香風優雅外套", "price_base": 1990, "rating": 4.7, "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500"},
-        {"type": "Jacket", "title": "輕盈羽絨保暖外套", "price_base": 1790, "rating": 4.5, "img": "https://images.unsplash.com/photo-1524506543702-4a24abac0bea?w=500"},
-        {"type": "Jacket", "title": "皮革機能休閒外套", "price_base": 1850, "rating": 4.4, "img": "https://images.unsplash.com/photo-1520975912867-6f34f58b6cec?w=500"},
+        {"type": "Jacket", "title": "城市極簡機能防風連帽外套", "price_base": 1990, "rating": 4.8},
+        {"type": "Jacket", "title": "經典街頭率性丹寧牛仔外套", "price_base": 1490, "rating": 4.6},
+        {"type": "Jacket", "title": "英倫風時尚雙排扣翻領大衣", "price_base": 2490, "rating": 4.7},
+        {"type": "Jacket", "title": "小香風優雅外套", "price_base": 1990, "rating": 4.7},
+        {"type": "Jacket", "title": "輕盈羽絨保暖外套", "price_base": 1790, "rating": 4.5},
+        {"type": "Jacket", "title": "皮革機能休閒外套", "price_base": 1850, "rating": 4.4},
         
         # Jeans 褲裝系列
-        {"type": "Jeans", "title": "工裝風多口袋休閒寬褲", "price_base": 990, "rating": 4.6, "img": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500"},
-        {"type": "Jeans", "title": "日系純色百搭舒適修身直筒褲", "price_base": 790, "rating": 4.2, "img": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500"},
-        {"type": "Jeans", "title": "高腰修身顯瘦復古水洗牛仔褲", "price_base": 1290, "rating": 4.5, "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500"},
-        {"type": "Jeans", "title": "高腰直筒刷色牛仔褲", "price_base": 1050, "rating": 4.5, "img": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500"},
-        {"type": "Jeans", "title": "淺色寬鬆復古牛仔褲", "price_base": 1150, "rating": 4.4, "img": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500"},
-        {"type": "Jeans", "title": "彈性修身牛仔九分褲", "price_base": 990, "rating": 4.3, "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500"},
+        {"type": "Jeans", "title": "工裝風多口袋休閒寬褲", "price_base": 990, "rating": 4.6},
+        {"type": "Jeans", "title": "日系純色百搭舒適修身直筒褲", "price_base": 790, "rating": 4.2},
+        {"type": "Jeans", "title": "高腰修身顯瘦復古水洗牛仔褲", "price_base": 1290, "rating": 4.5},
+        {"type": "Jeans", "title": "高腰直筒刷色牛仔褲", "price_base": 1050, "rating": 4.5},
+        {"type": "Jeans", "title": "淺色寬鬆復古牛仔褲", "price_base": 1150, "rating": 4.4},
+        {"type": "Jeans", "title": "彈性修身牛仔九分褲", "price_base": 990, "rating": 4.3},
         
         # Dress 連身裙系列
-        {"type": "Dress", "title": "法式優雅浪漫碎花連身裙", "price_base": 1490, "rating": 4.7, "img": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500"},
-        {"type": "Dress", "title": "赫本風極簡純色高腰洋裝", "price_base": 1680, "rating": 4.6, "img": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500"},
-        {"type": "Dress", "title": "浪漫雪紡花瓣洋裝", "price_base": 1790, "rating": 4.6, "img": "https://images.unsplash.com/photo-1524506543702-4a24abac0bea?w=500"},
-        {"type": "Dress", "title": "優雅蕾絲拼接連身裙", "price_base": 1590, "rating": 4.5, "img": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=500"},
-        {"type": "Dress", "title": "波西米亞長袖洋裝", "price_base": 1890, "rating": 4.7, "img": "https://images.unsplash.com/photo-1495121605193-b116b5b9c5c5?w=500"},
-        {"type": "Dress", "title": "經典襯衫連身洋裝", "price_base": 1390, "rating": 4.4, "img": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500"}
+        {"type": "Dress", "title": "法式優雅浪漫碎花連身裙", "price_base": 1490, "rating": 4.7},
+        {"type": "Dress", "title": "赫本風極簡純色高腰洋裝", "price_base": 1680, "rating": 4.6},
+        {"type": "Dress", "title": "浪漫雪紡花瓣洋裝", "price_base": 1790, "rating": 4.6},
+        {"type": "Dress", "title": "優雅蕾絲拼接連身裙", "price_base": 1590, "rating": 4.5},
+        {"type": "Dress", "title": "波西米亞長袖洋裝", "price_base": 1890, "rating": 4.7},
+        {"type": "Dress", "title": "經典襯衫連身洋裝", "price_base": 1390, "rating": 4.4}
     ]
     
     realtime_results = []
     
     # 網路爬蟲數據過濾與格式標準化清洗 - 新增類型篩選
+    gender_lookup = {'男裝': 'men', '女裝': 'women'}
+    gender_query = gender_lookup.get(gender, gender)
+
     for item in mock_pool:
         # 【新增】檢查服飾類型是否匹配
         if item["type"] != clothing_type:
@@ -65,6 +69,7 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
             brand_code = str(brand)[:2].upper()
             serial_num = random.randint(100, 999)
             item_code = f"CRAWL-{brand_code}-{final_price}-{serial_num}"
+            image_url = "https://source.unsplash.com/featured/500x500/?" + urllib.parse.quote_plus(f"{brand} {item['type']} {gender_query} clothing")
             
             realtime_results.append({
                 'item_code': item_code,
@@ -72,7 +77,7 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
                 'price': final_price,
                 'rating': item["rating"],
                 'brand': brand,
-                'image_url': item["img"],
+                'image_url': image_url,
                 'is_fallback': False,
                 'is_crawler': True
             })
