@@ -46,18 +46,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         : `<span class="badge bg-secondary font-monospace">NO. ${item.item_code}</span>`;
 
                     const officialLinkHtml = item.official_url
-                        ? `<a href="${item.official_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-3 w-100">品牌官網</a>`
+                        ? `<a href="${item.official_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="event.stopPropagation()">品牌官網</a>`
                         : '';
 
-                    const cardLinkStart = item.official_url
-                        ? `<a href="${item.official_url}" target="_blank" rel="noopener" class="text-decoration-none text-reset d-block" style="cursor:pointer;">`
+                    const cardOnclick = item.official_url
+                        ? `onclick="window.open('${item.official_url}', '_blank', 'noopener')"` 
                         : '';
-                    const cardLinkEnd = item.official_url ? `</a>` : '';
 
                     const cardHtml = `
                         <div class="col animate__animated animate__fadeInUp">
-                            ${cardLinkStart}
-                            <div class="card h-100 shadow-sm overflow-hidden" style="${cardStyle}">
+                            <div class="card h-100 shadow-sm overflow-hidden" style="${cardStyle} cursor: ${item.official_url ? 'pointer' : 'default'};" ${cardOnclick}>
                                 <div class="position-relative bg-light text-center" style="height: 220px; overflow: hidden;">
                                     <img src="${item.image_url}" class="w-100 h-100 object-fit-cover" alt="商品圖片" onerror="this.src='https://via.placeholder.com/320x320.png?text=Clothing'">
                                 </div>
@@ -83,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>
                             </div>
-                            ${cardLinkEnd}
                         </div>
                     `;
                     if (resultGrid) resultGrid.insertAdjacentHTML('beforeend', cardHtml);
