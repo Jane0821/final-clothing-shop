@@ -135,6 +135,25 @@ def load_local_clothing_data(target_brand, target_gender, target_type, min_price
 
     return results
 
+def apply_search_and_sort(results, keyword, sort_by):
+    """
+    【搜尋與排序引擎】
+    對結果集合進行關鍵字篩選與排序
+    """
+    # 1. 關鍵字搜尋（標題和品牌）
+    if keyword:
+        results = [item for item in results if keyword in item['title'].lower() or keyword in item['brand'].lower()]
+    
+    # 2. 排序
+    if sort_by == 'price_asc':
+        results = sorted(results, key=lambda x: x['price'])
+    elif sort_by == 'price_desc':
+        results = sorted(results, key=lambda x: x['price'], reverse=True)
+    elif sort_by == 'rating_desc':
+        results = sorted(results, key=lambda x: x['rating'], reverse=True)
+    
+    return results
+
 @main_bp.route('/')
 def index():
     return render_template('index.html')
@@ -146,6 +165,8 @@ def search():
     frontend_gender = data.get('gender')
     target_brand = data.get('brand')
     target_type = data.get('type')
+    keyword = data.get('keyword', '').strip().lower()
+    sort_by = data.get('sort_by', '')
     
     gender_map = {'男裝': 'men', '女裝': 'women'}
     target_gender = gender_map.get(frontend_gender, frontend_gender)
@@ -174,6 +195,9 @@ def search():
                             crawler_data.append(item)
             except Exception as csv_merge_err:
                 print(f"本機 CSV 補充失敗: {csv_merge_err}")
+
+            # 套用搜尋和排序
+            crawler_data = apply_search_and_sort(crawler_data, keyword, sort_by)
 
             return jsonify({
                 'success': True,
@@ -253,6 +277,9 @@ def search():
                         'official_url': official_url,
                         'is_fallback': True
                     })
+
+        # 套用搜尋和排序
+        results = apply_search_and_sort(results, keyword, sort_by)
 
         return jsonify({
             'success': True,

@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
             brand: formData.get('brand'),
             type: formData.get('type'),
             min_price: formData.get('min_price'),
-            max_price: formData.get('max_price')
+            max_price: formData.get('max_price'),
+            keyword: formData.get('keyword'),
+            sort_by: formData.get('sort_by')
         };
 
         fetch('/search', {

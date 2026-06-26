@@ -14,14 +14,14 @@
                 <div class="card-body">
                     <form id="filterForm">
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-semibold text-secondary">性別</label>
                                 <select class="form-select border-2" name="gender" required>
                                     <option value="男裝">男裝 (Menswear)</option>
                                     <option value="女裝">女裝 (Womenswear)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-semibold text-secondary">品牌</label>
                                 <select class="form-select border-2" name="brand" required>
                                     <option value="UNIQLO">UNIQLO</option>
@@ -30,7 +30,7 @@
                                     <option value="H&M">H&M</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-semibold text-secondary">服飾類型</label>
                                 <select class="form-select border-2" name="type" required>
                                     <option value="T-shirt">T-shirt (短袖/上衣)</option>
@@ -39,13 +39,26 @@
                                     <option value="Jeans">Jeans (牛仔褲系列)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-semibold text-secondary">預算區間 (NT$)</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control border-2" name="min_price" placeholder="最低" min="0">
                                     <span class="input-group-text bg-light">~</span>
                                     <input type="number" class="form-control border-2" name="max_price" placeholder="最高" min="0">
                                 </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold text-secondary">關鍵字搜尋</label>
+                                <input type="text" class="form-control border-2" name="keyword" placeholder="如：刷毛、寬版...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold text-secondary">排序方式</label>
+                                <select class="form-select border-2" name="sort_by">
+                                    <option value="">預設排序</option>
+                                    <option value="price_asc">價格：低到高</option>
+                                    <option value="price_desc">價格：高到低</option>
+                                    <option value="rating_desc">評分：高到低</option>
+                                </select>
                             </div>
                         </div>
 
