@@ -191,7 +191,16 @@ def search():
 
     # 1. 優先啟動即時網路爬蟲
     try:
-        crawler_data = fetch_realtime_clothing_data(target_brand, frontend_gender, target_type, min_price, max_price)
+        # 如果有關鍵字搜尋，先取得所有符合品牌、性別、價格的商品，再用關鍵字過濾
+        if keyword:
+            # 取得所有類型的資料
+            crawler_data = []
+            for clothing_type_option in ['T-shirt', 'Jacket', 'Jeans', 'Dress']:
+                temp_data = fetch_realtime_clothing_data(target_brand, frontend_gender, clothing_type_option, min_price, max_price)
+                crawler_data.extend(temp_data)
+        else:
+            # 沒有關鍵字，按原邏輯篩選特定類型
+            crawler_data = fetch_realtime_clothing_data(target_brand, frontend_gender, target_type, min_price, max_price)
 
         if crawler_data:
             try:
@@ -231,13 +240,20 @@ def search():
         df['gender'] = df['gender'].str.strip()
         df['type'] = df['type'].str.strip()
 
-        condition = (
+        # 基礎篩選：品牌、性別、價格
+        base_condition = (
             (df['gender'] == target_gender) &
             (df['brand'] == target_brand) &
-            (df['type'] == target_type) &
             (df['price'] >= min_price) &
             (df['price'] <= max_price)
         )
+        
+        # 如果有關鍵字，忽略類型限制；否則按類型篩選
+        if keyword:
+            condition = base_condition
+        else:
+            condition = base_condition & (df['type'] == target_type)
+        
         filtered_df = df[condition]
         
         results = []
