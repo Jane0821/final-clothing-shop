@@ -140,9 +140,17 @@ def apply_search_and_sort(results, keyword, sort_by):
     【搜尋與排序引擎】
     對結果集合進行關鍵字篩選與排序
     """
-    # 1. 關鍵字搜尋（標題和品牌）
+    # 1. 關鍵字搜尋（標題、品牌、商品名稱中文部分）
     if keyword:
-        results = [item for item in results if keyword in item['title'].lower() or keyword in item['brand'].lower()]
+        filtered_results = []
+        for item in results:
+            title_lower = item['title'].lower()
+            brand_lower = item['brand'].lower()
+            
+            # 搜尋邏輯：keyword 在標題或品牌中即匹配
+            if keyword in title_lower or keyword in brand_lower:
+                filtered_results.append(item)
+        results = filtered_results
     
     # 2. 排序
     if sort_by == 'price_asc':
