@@ -45,8 +45,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? `<span class="badge bg-warning text-dark fw-bold animate__animated animate__pulse animate__infinite"><i class="fa-solid fa-crown me-1"></i>店長推薦</span>`
                         : `<span class="badge bg-secondary font-monospace">NO. ${item.item_code}</span>`;
 
+                    const officialLinkHtml = item.official_url
+                        ? `<a href="${item.official_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-3 w-100">品牌官網</a>`
+                        : '';
+
+                    const cardLinkStart = item.official_url
+                        ? `<a href="${item.official_url}" target="_blank" rel="noopener" class="text-decoration-none text-reset d-block" style="cursor:pointer;">`
+                        : '';
+                    const cardLinkEnd = item.official_url ? `</a>` : '';
+
                     const cardHtml = `
                         <div class="col animate__animated animate__fadeInUp">
+                            ${cardLinkStart}
                             <div class="card h-100 shadow-sm overflow-hidden" style="${cardStyle}">
                                 <div class="position-relative bg-light text-center" style="height: 220px; overflow: hidden;">
                                     <img src="${item.image_url}" class="w-100 h-100 object-fit-cover" alt="商品圖片" onerror="this.src='https://via.placeholder.com/320x320.png?text=Clothing'">
@@ -59,6 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 
                                 <div class="card-body d-flex flex-column p-4">
                                     <h5 class="card-title fw-bold text-dark mb-3">${item.title}</h5>
+                                    ${officialLinkHtml}
                                     <div class="mt-auto pt-3 border-top border-light">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="text-danger fw-bold h4 mb-0">
@@ -72,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>
                             </div>
+                            ${cardLinkEnd}
                         </div>
                     `;
                     if (resultGrid) resultGrid.insertAdjacentHTML('beforeend', cardHtml);

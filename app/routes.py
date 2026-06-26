@@ -15,6 +15,13 @@ STABLE_IMAGE_BY_TYPE = {
 
 PLACEHOLDER_IMAGE = "https://via.placeholder.com/500x500.png?text=Clothing"
 
+BRAND_WEBSITES = {
+    "UNIQLO": "https://www.uniqlo.com/tw/",
+    "GU": "https://www.gu-global.com/tw/",
+    "ZARA": "https://www.zara.com/tw/",
+    "H&M": "https://www2.hm.com/zh_tw/index.html"
+}
+
 def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_price):
     """
     【核心技術：即時網路爬蟲與數據清洗引擎】
@@ -83,6 +90,7 @@ def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_pr
                 'rating': item["rating"],
                 'brand': brand,
                 'image_url': image_url,
+                'official_url': BRAND_WEBSITES.get(brand),
                 'is_fallback': False,
                 'is_crawler': True
             })
@@ -111,12 +119,7 @@ def load_local_clothing_data(target_brand, target_gender, target_type, min_price
         serial_num = random.randint(100, 999)
         item_code = f"LOCAL-{brand_code}-{int(row['price'])}-{serial_num}"
 
-        official_url = None
-        if 'official_image_url' in df.columns:
-            official_url = row.get('official_image_url')
-            if pd.isna(official_url):
-                official_url = None
-
+        official_url = BRAND_WEBSITES.get(row['brand'])
         image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
 
         results.append({
@@ -126,6 +129,7 @@ def load_local_clothing_data(target_brand, target_gender, target_type, min_price
             'rating': float(row['rating']),
             'brand': row['brand'],
             'image_url': image_url,
+            'official_url': official_url,
             'is_fallback': False
         })
 
@@ -210,12 +214,7 @@ def search():
             serial_num = random.randint(100, 999)
             item_code = f"LOCAL-{brand_code}-{int(row['price'])}-{serial_num}"
             
-            official_url = None
-            if 'official_image_url' in df.columns:
-                official_url = row.get('official_image_url')
-                if pd.isna(official_url):
-                    official_url = None
-
+            official_url = BRAND_WEBSITES.get(row['brand'])
             image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
 
             results.append({
@@ -225,6 +224,7 @@ def search():
                 'rating': float(row['rating']),
                 'brand': row['brand'],
                 'image_url': image_url,
+                'official_url': official_url,
                 'is_fallback': False
             })
             
@@ -240,20 +240,17 @@ def search():
                     serial_num = random.randint(100, 999)
                     item_code = f"RECOMMEND-{brand_code}-{int(row['price'])}-{serial_num}"
                     
-                    official_url = None
-                    if 'official_image_url' in df.columns:
-                        official_url = row.get('official_image_url')
-                        if pd.isna(official_url):
-                            official_url = None
-
+                    official_url = BRAND_WEBSITES.get(row['brand'])
                     image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
-            results.append({
+
+                    results.append({
                         'item_code': item_code,
                         'title': f"【店長推薦】{row['title']}",
                         'price': int(row['price']),
                         'rating': float(row['rating']),
                         'brand': row['brand'],
                         'image_url': image_url,
+                        'official_url': official_url,
                         'is_fallback': True
                     })
 
