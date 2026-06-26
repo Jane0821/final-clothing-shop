@@ -1,181 +1,16 @@
-from flask import Blueprint, render_template, request, jsonify
-import pandas as pd
-import os
-import random
-import time  # 引入時間模組，用來模擬網路爬蟲的傳輸延遲
-
-main_bp = Blueprint('main', __name__)
-
-STABLE_IMAGE_BY_TYPE = {
-    "T-shirt": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=500&q=80",
-    "Jacket": "https://images.unsplash.com/photo-1520975912867-6f34f58b6cec?auto=format&fit=crop&w=500&q=80",
-    "Jeans": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=500&q=80",
-    "Dress": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=500&q=80"
-}
-
-PLACEHOLDER_IMAGE = "https://via.placeholder.com/500x500.png?text=Clothing"
-
-BRAND_WEBSITES = {
-    "UNIQLO": "https://www.uniqlo.com/tw/",
-    "GU": "https://www.gu-global.com/tw/",
-    "ZARA": "https://www.zara.com/tw/",
-    "H&M": "https://www2.hm.com/zh_tw/index.html"
-}
-
-def fetch_realtime_clothing_data(brand, gender, clothing_type, min_price, max_price):
-    """
-    【核心技術：即時網路爬蟲與數據清洗引擎】
-    模擬 Requests 與 BeautifulSoup 爬取各大品牌官網並即時動態生成資料
-    """
-    # 模擬真實爬蟲在網路世界等待回應的傳輸延遲（讓前端的轉圈圈動畫更逼真！）
-    time.sleep(1.5) 
-    
-    # 【已過濾人像】全新純商品平拍、掛拍高品質圖片池 - 新增 type 標籤
-    mock_pool = [
-        # T-shirt 系列
-        {"type": "T-shirt", "title": "高質感重磅純棉微廓形上衣", "price_base": 590, "rating": 4.5},
-        {"type": "T-shirt", "title": "美式復古學院風印花短袖", "price_base": 490, "rating": 4.3},
-        {"type": "T-shirt", "title": "極簡生活系列 基礎百搭素T", "price_base": 390, "rating": 4.2},
-        {"type": "T-shirt", "title": "荷葉邊可愛短袖上衣", "price_base": 620, "rating": 4.4},
-        {"type": "T-shirt", "title": "蕾絲拼接舒適短袖", "price_base": 680, "rating": 4.5},
-        {"type": "T-shirt", "title": "清新條紋落肩上衣", "price_base": 540, "rating": 4.3},
-        
-        # Jacket 外套系列
-        {"type": "Jacket", "title": "城市極簡機能防風連帽外套", "price_base": 1990, "rating": 4.8},
-        {"type": "Jacket", "title": "經典街頭率性丹寧牛仔外套", "price_base": 1490, "rating": 4.6},
-        {"type": "Jacket", "title": "英倫風時尚雙排扣翻領大衣", "price_base": 2490, "rating": 4.7},
-        {"type": "Jacket", "title": "小香風優雅外套", "price_base": 1990, "rating": 4.7},
-        {"type": "Jacket", "title": "輕盈羽絨保暖外套", "price_base": 1790, "rating": 4.5},
-        {"type": "Jacket", "title": "皮革機能休閒外套", "price_base": 1850, "rating": 4.4},
-        
-        # Jeans 褲裝系列
-        {"type": "Jeans", "title": "工裝風多口袋休閒寬褲", "price_base": 990, "rating": 4.6},
-        {"type": "Jeans", "title": "日系純色百搭舒適修身直筒褲", "price_base": 790, "rating": 4.2},
-        {"type": "Jeans", "title": "高腰修身顯瘦復古水洗牛仔褲", "price_base": 1290, "rating": 4.5},
-        {"type": "Jeans", "title": "高腰直筒刷色牛仔褲", "price_base": 1050, "rating": 4.5},
-        {"type": "Jeans", "title": "淺色寬鬆復古牛仔褲", "price_base": 1150, "rating": 4.4},
-        {"type": "Jeans", "title": "彈性修身牛仔九分褲", "price_base": 990, "rating": 4.3},
-        
-        # Dress 連身裙系列
-        {"type": "Dress", "title": "法式優雅浪漫碎花連身裙", "price_base": 1490, "rating": 4.7},
-        {"type": "Dress", "title": "赫本風極簡純色高腰洋裝", "price_base": 1680, "rating": 4.6},
-        {"type": "Dress", "title": "浪漫雪紡花瓣洋裝", "price_base": 1790, "rating": 4.6},
-        {"type": "Dress", "title": "優雅蕾絲拼接連身裙", "price_base": 1590, "rating": 4.5},
-        {"type": "Dress", "title": "波西米亞長袖洋裝", "price_base": 1890, "rating": 4.7},
-        {"type": "Dress", "title": "經典襯衫連身洋裝", "price_base": 1390, "rating": 4.4}
-    ]
-
-    realtime_results = []
-    
-    # 網路爬蟲數據過濾與格式標準化清洗 - 新增類型篩選
-    for item in mock_pool:
-        # 【新增】檢查服飾類型是否匹配
-        if item["type"] != clothing_type:
-            continue
-            
-        brand_multiplier = {"UNIQLO": 1.0, "GU": 0.8, "ZARA": 1.4, "H&M": 0.9}
-        multiplier = brand_multiplier.get(brand, 1.0)
-        final_price = int(item["price_base"] * multiplier)
-        
-        if min_price <= final_price <= max_price:
-            brand_code = str(brand)[:2].upper()
-            serial_num = random.randint(100, 999)
-            item_code = f"CRAWL-{brand_code}-{final_price}-{serial_num}"
-            image_url = STABLE_IMAGE_BY_TYPE.get(item['type'], PLACEHOLDER_IMAGE)
-            
-            realtime_results.append({
-                'item_code': item_code,
-                'title': f"【即時搜羅】{brand} {gender}{clothing_type} · {item['title']}",
-                'price': final_price,
-                'rating': item["rating"],
-                'brand': brand,
-                'image_url': image_url,
-                'official_url': BRAND_WEBSITES.get(brand),
-                'is_fallback': False,
-                'is_crawler': True
-            })
-            
-    return realtime_results
-
-def load_local_clothing_data(target_brand, target_gender, target_type, min_price, max_price):
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-    csv_path = os.path.join(base_dir, '..', 'data.csv')
-    df = pd.read_csv(csv_path)
-    df['brand'] = df['brand'].astype(str).str.strip()
-    df['gender'] = df['gender'].astype(str).str.strip()
-    df['type'] = df['type'].astype(str).str.strip()
-
-    condition = (
-        (df['gender'] == target_gender) &
-        (df['brand'] == target_brand) &
-        (df['type'] == target_type) &
-        (df['price'] >= min_price) &
-        (df['price'] <= max_price)
-    )
-
-    results = []
-    for idx, row in df[condition].iterrows():
-        brand_code = str(row['brand'])[:2].upper()
-        serial_num = random.randint(100, 999)
-        item_code = f"LOCAL-{brand_code}-{int(row['price'])}-{serial_num}"
-
-        official_url = BRAND_WEBSITES.get(row['brand'])
-        image_url = STABLE_IMAGE_BY_TYPE.get(row['type'], PLACEHOLDER_IMAGE)
-
-        results.append({
-            'item_code': item_code,
-            'title': row['title'],
-            'price': int(row['price']),
-            'rating': float(row['rating']),
-            'brand': row['brand'],
-            'image_url': image_url,
-            'official_url': official_url,
-            'is_fallback': False
-        })
-
-    return results
-
-def apply_search_and_sort(results, keyword, sort_by):
-    """
-    【搜尋與排序引擎】
-    對結果集合進行關鍵字篩選與排序
-    """
-    # 1. 關鍵字搜尋（標題、品牌、商品名稱中文部分）
-    if keyword:
-        filtered_results = []
-        for item in results:
-            title_lower = item['title'].lower()
-            brand_lower = item['brand'].lower()
-            
-            # 搜尋邏輯：keyword 在標題或品牌中即匹配
-            if keyword in title_lower or keyword in brand_lower:
-                filtered_results.append(item)
-        results = filtered_results
-    
-    # 2. 排序
-    if sort_by == 'price_asc':
-        results = sorted(results, key=lambda x: x['price'])
-    elif sort_by == 'price_desc':
-        results = sorted(results, key=lambda x: x['price'], reverse=True)
-    elif sort_by == 'rating_desc':
-        results = sorted(results, key=lambda x: x['rating'], reverse=True)
-    
-    return results
-
-@main_bp.route('/')
-def index():
-    return render_template('index.html')
-
 @main_bp.route('/search', methods=['POST'])
 def search():
     data = request.get_json() or {}
     
-    frontend_gender = data.get('gender')
+    frontend_gender = data.get('gender') # '男裝' 或 '女裝'
     target_brand = data.get('brand')
     target_type = data.get('type')
     keyword = data.get('keyword', '').strip().lower()
     sort_by = data.get('sort_by', '')
     
+    # 💡 請確認你的 data.csv 裡面 gender 欄位到底是寫 "男裝" 還是 "men"
+    # 如果 CSV 寫的是 "男裝"，這裡 target_gender 就要維持 frontend_gender！
+    # 安全起見，我們這裡直接保留原本的對應，但下方查詢時做好相容
     gender_map = {'男裝': 'men', '女裝': 'women'}
     target_gender = gender_map.get(frontend_gender, frontend_gender)
 
@@ -191,9 +26,8 @@ def search():
 
     # 1. 優先啟動即時網路爬蟲
     try:
-        # 如果有關鍵字搜尋，先取得所有符合品牌、性別、價格的商品，再用關鍵字過濾
+        # 如果有關鍵字，不論前端選什麼 type，直接全面跨服飾類型搜羅
         if keyword:
-            # 取得所有類型的資料
             crawler_data = []
             for clothing_type_option in ['T-shirt', 'Jacket', 'Jeans', 'Dress']:
                 temp_data = fetch_realtime_clothing_data(target_brand, frontend_gender, clothing_type_option, min_price, max_price)
@@ -204,7 +38,21 @@ def search():
 
         if crawler_data:
             try:
-                csv_results = load_local_clothing_data(target_brand, target_gender, target_type, min_price, max_price)
+                # 補充本地 CSV 資料，一樣判斷是否跨類型
+                if keyword:
+                    csv_results = []
+                    for clothing_type_option in ['T-shirt', 'Jacket', 'Jeans', 'Dress']:
+                        # 💡 注意：這裡改傳 frontend_gender，確保與 fetch_realtime 邏輯一致，且相容 CSV 的中文字
+                        temp_csv = load_local_clothing_data(target_brand, frontend_gender, clothing_type_option, min_price, max_price)
+                        # 如果上面沒撈到，試試看英文版的 target_gender
+                        if not temp_csv:
+                            temp_csv = load_local_clothing_data(target_brand, target_gender, clothing_type_option, min_price, max_price)
+                        csv_results.extend(temp_csv)
+                else:
+                    csv_results = load_local_clothing_data(target_brand, frontend_gender, target_type, min_price, max_price)
+                    if not csv_results:
+                        csv_results = load_local_clothing_data(target_brand, target_gender, target_type, min_price, max_price)
+                
                 if csv_results:
                     existing_titles = {item['title'] for item in crawler_data}
                     for item in csv_results:
@@ -213,9 +61,9 @@ def search():
             except Exception as csv_merge_err:
                 print(f"本機 CSV 補充失敗: {csv_merge_err}")
 
-            # 套用搜尋和排序
+            # 💡 統一在這裡套用搜尋關鍵字過濾與排序
             crawler_data = apply_search_and_sort(crawler_data, keyword, sort_by)
-
+            
             return jsonify({
                 'success': True,
                 'count': len(crawler_data),
@@ -224,11 +72,8 @@ def search():
     except Exception as crawler_err:
         print(f"即時爬蟲模組異常: {crawler_err}")
 
-    # 2. 備援機制：本機 CSV 資料庫 (精準對齊修復區塊)
-    # 2. 備援機制：本機 CSV 資料庫 (精準對齊修復區塊)
-# 2. 備援機制：本機 CSV 資料庫 (精準對齊修復區塊)
+    # 2. 備援機制：本機 CSV 資料庫
     try:
-        # 修正：先找到目前 routes.py 的位置，再往上一層找到最外面的 data.csv
         base_dir = os.path.abspath(os.path.dirname(__file__))
         csv_path = os.path.join(base_dir, '..', 'data.csv')
         
@@ -236,19 +81,21 @@ def search():
             return jsonify({'success': False, 'message': '找不到備用資料庫'}), 404
 
         df = pd.read_csv(csv_path)
-        df['brand'] = df['brand'].str.strip()
-        df['gender'] = df['gender'].str.strip()
-        df['type'] = df['type'].str.strip()
+        df['brand'] = df['brand'].astype(str).str.strip()
+        df['gender'] = df['gender'].astype(str).str.strip()
+        df['type'] = df['type'].astype(str).str.strip()
 
-        # 基礎篩選：品牌、性別、價格
+        # 💡 修正性別篩選條件：同時支援 '男裝' 或 'men'，避免因為對應錯了導致篩出空集合
+        gender_condition = (df['gender'] == frontend_gender) | (df['gender'] == target_gender)
+
         base_condition = (
-            (df['gender'] == target_gender) &
+            gender_condition &
             (df['brand'] == target_brand) &
             (df['price'] >= min_price) &
             (df['price'] <= max_price)
         )
         
-        # 如果有關鍵字，忽略類型限制；否則按類型篩選
+        # 💡 關鍵字觸發時，不設限 type 欄位
         if keyword:
             condition = base_condition
         else:
@@ -276,7 +123,10 @@ def search():
                 'is_fallback': False
             })
             
-        # 3. 店長隨機推薦
+        # 💡 在排除空結果與店長推薦之前，先對結果進行關鍵字過濾
+        results = apply_search_and_sort(results, keyword, sort_by)
+
+        # 3. 如果過濾後真的沒商品，才進店長隨機推薦
         if not results:
             brand_fallback = df[df['brand'] == target_brand]
             if not brand_fallback.empty:
@@ -301,9 +151,8 @@ def search():
                         'official_url': official_url,
                         'is_fallback': True
                     })
-
-        # 套用搜尋和排序
-        results = apply_search_and_sort(results, keyword, sort_by)
+                # 店長推薦完後再次排序（以防萬一）
+                results = apply_search_and_sort(results, keyword, sort_by)
 
         return jsonify({
             'success': True,
